@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const details = [
-  { label: "商务合作 · BUSINESS", value: "hi@youngtech.com", href: "mailto:hi@youngtech.com" },
-  { label: "品牌合作 · PR", value: "pr@youngtech.com", href: "mailto:pr@youngtech.com" },
+  { label: "商务合作 · BUSINESS", value: "hi@youngtechyolo.com", href: "mailto:hi@youngtechyolo.com" },
+  { label: "品牌合作 · PR", value: "pr@youngtechyolo.com", href: "mailto:pr@youngtechyolo.com" },
   { label: "所在地 · Based in", value: "中国 · 源起西藏", href: null },
 ];
 

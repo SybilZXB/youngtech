@@ -26,8 +26,8 @@ const columns = [
   {
     title: "联系",
     links: [
-      { label: "商务合作", href: "mailto:hi@youngtech.com" },
-      { label: "品牌合作", href: "mailto:pr@youngtech.com" },
+      { label: "商务合作", href: "mailto:hi@youngtechyolo.com" },
+      { label: "品牌合作", href: "mailto:pr@youngtechyolo.com" },
     ],
   },
 ];
