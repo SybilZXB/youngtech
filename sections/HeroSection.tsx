@@ -38,13 +38,13 @@ export default function HeroSection() {
             </div>
           ))}
           {/* Third line — smaller tagline */}
-          <div className="overflow-hidden mt-1">
+          <div className="overflow-hidden mt-6">
             <motion.p
               initial={{ y: "102%" }}
               animate={{ y: 0 }}
               transition={{ duration: 0.9, delay: 1.22, ease: [0.16, 1, 0.3, 1] }}
-              className="text-ink-3 font-medium tracking-[0.18em] uppercase"
-              style={{ fontSize: "clamp(0.85rem, 1.8vw, 1.4rem)" }}
+              className="font-bold text-ink tracking-tight"
+              style={{ fontSize: "clamp(1.3rem, 3vw, 3.5rem)" }}
             >
               Young Tech with U
             </motion.p>

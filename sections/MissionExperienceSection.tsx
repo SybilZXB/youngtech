@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   motion,
@@ -10,26 +10,50 @@ import {
   MotionValue,
 } from "framer-motion";
 
-/**
- * MISSION EXPERIENCE — cinematic scroll narrative.
- * A pinned, scroll-driven journey from sea level → Everest → space.
- *
- * Background is a live canvas particle system whose color / motion track
- * scroll progress (city dust → snow → wind → oxygen orbs → stars).
- *
- * To layer real cinematic footage behind it later, drop an MP4 at
- * /public/video/mission.mp4 and set BACKGROUND_VIDEO below.
- */
-const BACKGROUND_VIDEO: string | null = null; // e.g. "/video/mission.mp4"
+const BACKGROUND_VIDEO: string | null = null;
 
-// ── per-scene fade helper ──
 function useScene(p: MotionValue<number>, range: [number, number, number, number]) {
   const opacity = useTransform(p, range, [0, 1, 1, 0]);
   const y = useTransform(p, range, [50, 0, 0, -50]);
   return { opacity, y };
 }
 
-// ── live particle background ──
+const BG_IMAGES = [
+  "/mission/bg1.jpg",
+  "/mission/bg2.jpg",
+  "/mission/bg3.jpg",
+  "/mission/bg4.jpg",
+  "/mission/bg5.jpg",
+  "/mission/bg6.jpg",
+];
+
+function SlideshowBg() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % BG_IMAGES.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="absolute inset-0 z-[5] pointer-events-none">
+      {BG_IMAGES.map((src, i) => (
+        <Image
+          key={src}
+          src={src}
+          alt=""
+          fill
+          priority={i === 0}
+          className="object-cover object-center transition-opacity duration-[2000ms]"
+          style={{ opacity: idx === i ? 1 : 0 }}
+          sizes="100vw"
+        />
+      ))}
+      {/* translucent scrim for hazy feel */}
+      <div className="absolute inset-0" style={{ background: "rgba(5,10,18,0.55)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,10,18,0.4) 0%, rgba(5,10,18,0.05) 40%, rgba(5,10,18,0.6) 100%)" }} />
+    </div>
+  );
+}
+
 function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pRef = useRef(0);
@@ -51,7 +75,7 @@ function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
     const particles = Array.from({ length: N }, () => ({
       x: Math.random(),
       y: Math.random(),
-      z: Math.random() * 0.8 + 0.2, // depth → size/speed
+      z: Math.random() * 0.8 + 0.2,
       seed: Math.random() * Math.PI * 2,
     }));
 
@@ -66,8 +90,6 @@ function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
       const p = pRef.current;
       ctx.clearRect(0, 0, w, h);
 
-      // phase-driven palette + motion
-      // 0 city · 0.3 alpine · 0.5 glacier · 0.7 summit · 1 space
       let r: number, g: number, b: number, drift: number, wind: number, twinkle: number;
       if (p < 0.25) {
         const k = p / 0.25;
@@ -88,7 +110,6 @@ function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
       }
 
       for (const pt of particles) {
-        // motion
         pt.y += drift * pt.z * 3;
         pt.x += wind * pt.z + Math.sin(t + pt.seed) * 0.0002;
         if (pt.y < -0.02) pt.y = 1.02;
@@ -107,7 +128,6 @@ function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
         ctx.fill();
       }
 
-      // oxygen / neural network links near the summit→space transition
       if (p > 0.58) {
         const linkStrength = Math.min(1, (p - 0.58) / 0.3);
         ctx.strokeStyle = `rgba(155,212,245,${0.12 * linkStrength})`;
@@ -145,7 +165,6 @@ function ParticleCanvas({ progress }: { progress: MotionValue<number> }) {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
 }
 
-// ── animated numeric readout ──
 function Readout({ value, suffix = "" }: { value: MotionValue<string>; suffix?: string }) {
   return (
     <span className="tabular-nums">
@@ -162,14 +181,12 @@ export default function MissionExperienceSection() {
     offset: ["start start", "end end"],
   });
 
-  // background color across the climb
   const bg = useTransform(
     scrollYProgress,
     [0, 0.25, 0.5, 0.72, 1],
     ["#0d0b0a", "#0a1420", "#0b1d31", "#040608", "#000000"]
   );
 
-  // scenes
   const s1 = useScene(scrollYProgress, [0.0, 0.02, 0.1, 0.14]);
   const s2 = useScene(scrollYProgress, [0.14, 0.17, 0.23, 0.27]);
   const s3 = useScene(scrollYProgress, [0.27, 0.31, 0.39, 0.44]);
@@ -178,11 +195,9 @@ export default function MissionExperienceSection() {
   const s6 = useScene(scrollYProgress, [0.76, 0.79, 0.85, 0.89]);
   const s7 = useScene(scrollYProgress, [0.89, 0.93, 1.0, 1.0]);
 
-  // data readouts
   const spo2 = useTransform(scrollYProgress, [0.30, 0.35, 0.40], [98, 92, 88]);
   const spo2Str = useTransform(spo2, (v) => Math.round(v).toString());
 
-  // altitude ticker (shown top-left throughout)
   const alt = useTransform(
     scrollYProgress,
     [0.0, 0.14, 0.27, 0.44, 0.61, 0.76, 1.0],
@@ -190,25 +205,17 @@ export default function MissionExperienceSection() {
   );
   const altStr = useTransform(alt, (v) => Math.round(v).toLocaleString());
 
-  // breathing scale for summit scene
   const breathe = useTransform(scrollYProgress, [0.61, 0.665, 0.72], [1, 1.18, 1]);
 
-  // photo finale — fades in during Scene 6/7
   const progressRef = useRef(0);
   useMotionValueEvent(scrollYProgress, "change", (v) => { progressRef.current = v; });
-  const photoOpacity = useTransform(scrollYProgress, [0.68, 0.8, 1], [0, 1, 1]);
-  const photoScale  = useTransform(scrollYProgress, [0.68, 1],     [1.06, 1.0]);
   const particleOpacity = useTransform(scrollYProgress, [0.68, 0.84], [1, 0.15]);
 
   return (
     <section id="mission" ref={containerRef} className="relative h-[750vh] bg-dark">
-      {/* pinned viewport */}
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* color base */}
         <motion.div className="absolute inset-0" style={{ backgroundColor: bg }} />
 
-        {/* optional cinematic video — blurred, dimmed climbing footage behind the particles.
-            Drop an MP4 at /public/video/mission.mp4 and set BACKGROUND_VIDEO above. */}
         {BACKGROUND_VIDEO && (
           <>
             <video
@@ -224,34 +231,15 @@ export default function MissionExperienceSection() {
           </>
         )}
 
-        {/* live particles */}
         <motion.div style={{ opacity: particleOpacity }} className="absolute inset-0">
           <ParticleCanvas progress={scrollYProgress} />
         </motion.div>
 
-        {/* Real climbing photo — Manaslu 8163m, CC BY 3.0. Fades in for Scene 6/7 finale. */}
-        <motion.div
-          style={{ opacity: photoOpacity, scale: photoScale }}
-          className="absolute inset-0 z-[5] pointer-events-none"
-        >
-          <Image
-            src="/mission/manaslu_climber.jpg"
-            alt="Climber on Manaslu 8163m"
-            fill
-            priority
-            className="object-cover object-center"
-          />
-          {/* cinematic grade: keep it moody, not blown out */}
-          <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(5,10,18,0.55) 0%, rgba(5,10,18,0.15) 45%, rgba(5,10,18,0.72) 100%)" }}
-          />
-        </motion.div>
+        {/* Rotating background photos */}
+        <SlideshowBg />
 
-        {/* vignette */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />
 
-        {/* persistent altitude HUD */}
         <div className="absolute top-24 left-6 md:left-12 z-20 flex items-center gap-3">
           <span className="w-8 h-px bg-accent-ice/40" />
           <span className="text-xs tracking-[0.25em] text-accent-ice/80 tabular-nums">
@@ -259,7 +247,6 @@ export default function MissionExperienceSection() {
           </span>
         </div>
 
-        {/* ── Scene 1 · intro ── */}
         <motion.div style={{ opacity: s1.opacity, y: s1.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <h2 className="font-bold text-white leading-[0.95] tracking-tight" style={{ fontSize: "clamp(2.8rem, 8vw, 8rem)" }}>
             THE LIMIT<br />IS ONLY<br /><span className="text-accent-ice">THE BEGINNING</span>
@@ -273,7 +260,6 @@ export default function MissionExperienceSection() {
           </div>
         </motion.div>
 
-        {/* ── Scene 2 · 0m city ── */}
         <motion.div style={{ opacity: s2.opacity, y: s2.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <div className="section-label text-accent-ice/70 mb-6">海拔 0M · 城市</div>
           <h3 className="font-bold text-white leading-tight tracking-tight" style={{ fontSize: "clamp(2.2rem, 6vw, 5.5rem)" }}>
@@ -282,7 +268,6 @@ export default function MissionExperienceSection() {
           <p className="mt-6 text-white/50 text-base md:text-lg font-light">每一次远征，都始于平凡的起点。</p>
         </motion.div>
 
-        {/* ── Scene 3 · 3000m ── */}
         <motion.div style={{ opacity: s3.opacity, y: s3.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <div className="section-label text-accent-ice/70 mb-6">海拔 3,000M · 高山地带</div>
           <h3 className="font-bold text-white leading-tight tracking-tight mb-10" style={{ fontSize: "clamp(1.8rem, 4.5vw, 4rem)" }}>
@@ -297,7 +282,6 @@ export default function MissionExperienceSection() {
           </div>
         </motion.div>
 
-        {/* ── Scene 4 · 5000m ── */}
         <motion.div style={{ opacity: s4.opacity, y: s4.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <div className="section-label text-accent-ice/70 mb-6">海拔 5,000M · 无人区</div>
           <h3 className="font-bold text-white leading-tight tracking-tight mb-10" style={{ fontSize: "clamp(2rem, 5.5vw, 5rem)" }}>
@@ -318,9 +302,8 @@ export default function MissionExperienceSection() {
           <p className="text-accent-ice text-sm md:text-lg tracking-[0.25em] uppercase">Technology Becomes Survival</p>
         </motion.div>
 
-        {/* ── Scene 5 · 8848m summit ── */}
         <motion.div style={{ opacity: s5.opacity, y: s5.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
-          <motion.div style={{ scale: breathe }} className="absolute w-[60vmin] h-[60vmin] rounded-full" >
+          <motion.div style={{ scale: breathe }} className="absolute w-[60vmin] h-[60vmin] rounded-full">
             <div className="w-full h-full rounded-full" style={{ background: "radial-gradient(circle, rgba(155,212,245,0.10) 0%, transparent 70%)" }} />
           </motion.div>
           <div className="section-label text-accent-ice/70 mb-6 relative">海拔 8,848M · 珠峰之巅</div>
@@ -330,7 +313,6 @@ export default function MissionExperienceSection() {
           <p className="mt-8 text-white/40 text-sm tracking-[0.2em] uppercase relative">每一次呼吸，都被重新定义</p>
         </motion.div>
 
-        {/* ── Scene 6 · mission ── */}
         <motion.div style={{ opacity: s6.opacity, y: s6.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <div className="section-label text-accent-ice/70 mb-10">氧太使命 · Our Mission</div>
           <p className="font-bold text-white leading-snug tracking-tight max-w-4xl" style={{ fontSize: "clamp(1.6rem, 3.6vw, 3.4rem)" }}>
@@ -342,7 +324,6 @@ export default function MissionExperienceSection() {
           </p>
         </motion.div>
 
-        {/* ── Scene 7 · climax ── */}
         <motion.div style={{ opacity: s7.opacity, y: s7.y }} className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
           <div className="flex gap-10 md:gap-20 mb-14">
             {[

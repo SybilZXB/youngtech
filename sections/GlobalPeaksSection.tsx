@@ -92,7 +92,7 @@ export default function GlobalPeaksSection() {
               transition={{ duration: 0.7, delay: 0.18 }}
               className="body-sm max-w-xs md:text-right"
             >
-              横跨七大洲的极限坐标。左右滑动，点击任意山峰，感受星球之巅。
+              横跨七大洲的极限坐标。<br />左右滑动，点击任意山峰，感受星球之巅。
             </motion.p>
           </div>
         </div>

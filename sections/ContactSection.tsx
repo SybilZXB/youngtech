@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 const ease = [0.16, 1, 0.3, 1] as const;
 
 const details = [
-  { label: "商务合作 · Partnership", value: "hello@youngtech.com", href: "mailto:hello@youngtech.com" },
-  { label: "媒体咨询 · Press", value: "press@youngtech.com", href: "mailto:press@youngtech.com" },
+  { label: "商务合作 · BUSINESS", value: "hi@youngtech.com", href: "mailto:hi@youngtech.com" },
+  { label: "品牌合作 · PR", value: "pr@youngtech.com", href: "mailto:pr@youngtech.com" },
   { label: "所在地 · Based in", value: "中国 · 源起西藏", href: null },
 ];
 
@@ -47,11 +47,8 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: 0.2, ease }}
-            className="mt-14 md:mt-20 flex flex-col md:flex-row md:items-center gap-8 md:gap-16"
+            className="mt-14 md:mt-20"
           >
-            <a href="mailto:hello@youngtech.com" className="btn-dark text-base self-start">
-              开始对话 →
-            </a>
             <p className="body-lg max-w-sm">
               商务合作、渠道分销与媒体咨询，<br className="hidden md:block" />我们期待与每一位探索者对话。
             </p>
@@ -92,7 +89,7 @@ export default function ContactSection() {
           className="mt-32 md:mt-52"
         >
           <div
-            className="font-bold text-ink/[0.07] leading-none tracking-tighter select-none"
+            className="font-bold text-ink/[0.07] hover:text-accent/90 transition-colors duration-500 leading-none tracking-tighter select-none cursor-default"
             style={{ fontSize: "clamp(3.5rem, 17vw, 17rem)" }}
           >
             YOUNG TECH

@@ -26,10 +26,8 @@ const columns = [
   {
     title: "联系",
     links: [
-      { label: "hello@youngtech.com", href: "mailto:hello@youngtech.com" },
-      { label: "商务合作", href: "mailto:hello@youngtech.com" },
-      { label: "媒体咨询", href: "mailto:hello@youngtech.com" },
-      { label: "联系我们", href: "#contact" },
+      { label: "商务合作", href: "mailto:hi@youngtech.com" },
+      { label: "品牌合作", href: "mailto:pr@youngtech.com" },
     ],
   },
 ];

@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 // ── HEAVY · OUTDOOR ──
 const heavyStats = [
@@ -17,22 +19,25 @@ const bottleProducts = [
     tags: ["碳纤维瓶身", "脉冲阀门", "超轻量"],
     status: "现已发售",
     available: true,
+    images: ["/products/bottle1/bottle1_a.png", "/products/bottle1/bottle1_b.png"],
   },
   {
     name: "Bottle 1S",
     sub: "Pro Oxygen Cylinder",
     desc: "进阶款。更高储氧压力与优化脉冲算法，续航与供氧效率全面升级，专为长线高海拔远征打造。",
-    tags: ["高压储氧", "脉冲算法升级", "长续航"],
+    tags: ["高压储氧", "脉冲升级", "长续航"],
     status: "现已发售",
     available: true,
+    images: ["/products/bottle1s/bottle1s_a.png", "/products/bottle1s/bottle1s_b.png"],
   },
   {
     name: "Bottle E",
     sub: "AI Smart Oxygen",
     desc: "智能旗舰。集成 AI 供氧调节与实时血氧浓度监测，按身体状态自适应供氧。目前处于在研阶段。",
-    tags: ["AI 供氧", "血氧监测", "自适应调节"],
+    tags: ["AI 算法检测", "血氧监测", "自适应调节"],
     status: "在研阶段",
     available: false,
+    images: [],
   },
 ];
 
@@ -41,22 +46,40 @@ const uvProducts = [
   {
     name: "UV Hat",
     sub: "UV Protection Smart Hat",
-    desc: "紫外防护智能帽。实时紫外线指数感知与 UPF 50+ 防护，让城市通勤与轻户外都从容应对烈日。",
-    tags: ["UPF 50+", "UV 指数感知", "轻量透气"],
+    desc: "宇航员级别材料，99.99% 阻隔 UVA & UVB，轻松实现冻龄，让城市通勤与轻户外都从容应对烈日。",
+    tags: ["新材料", "光子级别抗衰", "轻量透气"],
     status: "现已发售",
     available: true,
+    images: ["/products/uvhat/uvhat_a.png"] as string[],
   },
   {
     name: "UV Camera",
     sub: "UV Multispectral Camera",
-    desc: "紫外多光谱相机。捕捉肉眼不可见的紫外维度，记录皮肤防晒、城市光环境与自然中的隐藏细节。",
+    desc: "全球领先的极紫外技术，捕捉肉眼不可见的紫外维度，防晒黑科技。",
     tags: ["多光谱成像", "紫外可视化", "便携设计"],
     status: "现已发售",
     available: true,
+    images: ["/products/uvcamera/uvcamera_b.png"] as string[],
   },
 ];
 
 function ProductCard({ p, index }: { p: typeof bottleProducts[0]; index: number }) {
+  const [activeImg, setActiveImg] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (hovered && p.images.length > 1) {
+      intervalRef.current = setInterval(() => {
+        setActiveImg((i) => (i + 1) % p.images.length);
+      }, 900);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (!hovered) setActiveImg(0);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [hovered, p.images.length]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -64,18 +87,43 @@ function ProductCard({ p, index }: { p: typeof bottleProducts[0]; index: number 
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       className="group bg-sand border border-border hover:border-ink transition-colors duration-300"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* Visual placeholder */}
+      {/* Visual */}
       <div className="relative aspect-[4/3] bg-dark overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 35%, rgba(58,147,216,0.18) 0%, transparent 65%)" }} />
-        <div className="relative text-center">
-          <div className="text-2xl md:text-3xl font-bold text-sand/90 tracking-tight">{p.name}</div>
-          <div className="text-accent-ice text-[10px] tracking-[0.3em] uppercase mt-2">{p.sub}</div>
+        {/* 默认黑色封面 */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center z-10 transition-opacity duration-500 ${hovered && p.images.length > 0 ? "opacity-0" : "opacity-100"}`}>
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 35%, rgba(58,147,216,0.18) 0%, transparent 65%)" }} />
+          <div className="relative text-center">
+            <div className="text-2xl md:text-3xl font-bold text-sand/90 tracking-tight">{p.name}</div>
+            <div className="text-accent-ice text-[10px] tracking-[0.3em] uppercase mt-2">{p.sub}</div>
+          </div>
         </div>
-        <span className={`absolute top-3 left-3 text-[10px] tracking-[0.15em] px-2.5 py-1 uppercase ${p.available ? "bg-sand/15 text-sand" : "bg-accent/90 text-sand"}`}>
+
+        {/* hover 后轮播实拍图 */}
+        {p.images.map((src, i) => (
+          <Image
+            key={src}
+            src={src}
+            alt={`${p.name} ${i + 1}`}
+            fill
+            className="object-contain transition-opacity duration-500"
+            style={{ opacity: hovered && activeImg === i ? 1 : 0 }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
+        ))}
+        {/* dot indicators */}
+        {p.images.length > 1 && hovered && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+            {p.images.map((_, i) => (
+              <span key={i} className={`block w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeImg === i ? "bg-white scale-125" : "bg-white/40"}`} />
+            ))}
+          </div>
+        )}
+        <span className={`absolute top-3 left-3 text-[10px] tracking-[0.15em] px-2.5 py-1 uppercase z-10 ${p.available ? "bg-sand/15 text-sand" : "bg-accent/90 text-sand"}`}>
           {p.status}
         </span>
-        <div className="absolute bottom-3 right-3 text-[9px] tracking-[0.2em] text-sand/30 uppercase">待替换实拍</div>
       </div>
 
       {/* Info */}
@@ -102,7 +150,6 @@ function CategoryHeader({ en, zh, tag }: { en: string; zh: string; tag: string }
         </h3>
         <div className="text-sm tracking-[0.25em] text-ink-2 mt-3">{zh}</div>
       </div>
-      <span className="text-xs tracking-[0.2em] uppercase text-ink-3 shrink-0 mb-1">{tag}</span>
     </div>
   );
 }
