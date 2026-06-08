@@ -62,7 +62,7 @@ export default function GlobalPeaksSection() {
 
   return (
     <section id="peaks" className="py-28 md:py-40 bg-stone overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Header */}
         <div className="mb-12 md:mb-16">

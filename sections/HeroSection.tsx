@@ -12,31 +12,43 @@ const stats = [
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex flex-col bg-sand">
-      <div className="flex-1 flex flex-col justify-center max-w-[1440px] mx-auto px-6 md:px-12 w-full pt-32 pb-16">
+      <div className="flex-1 flex flex-col justify-center max-w-[1200px] mx-auto px-6 md:px-12 w-full pt-32 pb-16">
 
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.9 }}
-          className="section-label mb-16"
+          className="section-label mb-16 truncate"
         >
           YOUNG TECH · 氧太科技 · Founded 2026 · From Tibet
         </motion.div>
 
         {/* Headline */}
         <div className="mb-10">
-          {["探索者，", "从不等待", "准备好的那天。"].map((line, i) => (
+          {["YOLO", "YOU ONLY LIVE ONCE"].map((line, i) => (
             <div key={line} className="overflow-hidden">
               <motion.h1
                 initial={{ y: "102%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.9, delay: 1.0 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="display-cjk text-ink block"
+                className={`display-cjk block ${i === 0 ? "text-accent" : "text-ink"}`}
               >
                 {line}
               </motion.h1>
             </div>
           ))}
+          {/* Third line — smaller tagline */}
+          <div className="overflow-hidden mt-1">
+            <motion.p
+              initial={{ y: "102%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.9, delay: 1.22, ease: [0.16, 1, 0.3, 1] }}
+              className="text-ink-3 font-medium tracking-[0.18em] uppercase"
+              style={{ fontSize: "clamp(0.85rem, 1.8vw, 1.4rem)" }}
+            >
+              Young Tech with U
+            </motion.p>
+          </div>
         </div>
 
         {/* Sub row */}
@@ -67,7 +79,7 @@ export default function HeroSection() {
         transition={{ duration: 0.7, delay: 1.9 }}
         className="border-t border-border"
       >
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-8 flex gap-12 md:gap-20">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-6 md:py-8 grid grid-cols-2 md:flex md:gap-20 gap-x-6 gap-y-5">
           {stats.map((stat) => (
             <div key={stat.label}>
               <div className="flex items-baseline gap-0.5 mb-1">

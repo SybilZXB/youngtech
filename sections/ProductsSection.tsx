@@ -110,7 +110,7 @@ function CategoryHeader({ en, zh, tag }: { en: string; zh: string; tag: string }
 export default function ProductsSection() {
   return (
     <section id="products" className="py-28 md:py-40 bg-sand">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Section header */}
         <motion.div

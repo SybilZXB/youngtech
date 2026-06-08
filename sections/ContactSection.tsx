@@ -13,7 +13,7 @@ const details = [
 export default function ContactSection() {
   return (
     <section id="contact" className="bg-sand">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-28 md:pt-40 pb-24 md:pb-36">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 pt-28 md:pt-40 pb-24 md:pb-36">
 
         {/* label */}
         <motion.div
@@ -35,7 +35,7 @@ export default function ContactSection() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease }}
             className="font-bold text-ink"
-            style={{ fontSize: "clamp(2.8rem, 8vw, 8rem)", letterSpacing: "-0.04em", lineHeight: 0.98 }}
+            style={{ fontSize: "clamp(2rem, 7vw, 7rem)", letterSpacing: "-0.03em", lineHeight: 0.98 }}
           >
             准备好
             <br />

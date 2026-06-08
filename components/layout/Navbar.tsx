@@ -34,7 +34,7 @@ export default function Navbar() {
             : "py-6 bg-transparent"
         )}
       >
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-12 flex items-center justify-between">
 
           {/* Logo — CSS mask gives exact glacier-blue tint from the white logo PNG */}
           <a href="#" className="flex items-center gap-2.5" aria-label="YOUNG TECH">
@@ -67,7 +67,7 @@ export default function Navbar() {
             ))}
             <a
               href="#contact"
-              className="text-xs tracking-[0.18em] bg-ink text-sand px-5 py-2.5 font-medium hover:bg-accent transition-colors duration-300 uppercase"
+              className="text-sm tracking-[0.12em] text-ink-2 hover:text-ink transition-colors duration-200"
             >
               联系我们
             </a>

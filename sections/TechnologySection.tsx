@@ -43,7 +43,7 @@ const techItems = [
 export default function TechnologySection() {
   return (
     <section id="technology" className="py-28 md:py-40 bg-stone">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Header */}
         <div className="mb-20 md:mb-28 border-b border-border pb-16">

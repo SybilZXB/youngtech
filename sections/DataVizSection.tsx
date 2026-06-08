@@ -34,7 +34,7 @@ const metrics = [
 export default function DataVizSection() {
   return (
     <section className="py-28 md:py-40 bg-dark">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Header */}
         <div className="mb-20 md:mb-28 border-b border-sand/10 pb-16">

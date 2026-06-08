@@ -38,7 +38,7 @@ const pillars = [
 export default function PhilosophySection() {
   return (
     <section id="philosophy" className="py-28 md:py-40 bg-sand">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Header */}
         <div className="grid md:grid-cols-2 gap-12 mb-20 md:mb-28 border-b border-border pb-16">

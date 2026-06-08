@@ -18,7 +18,7 @@ export default function YoloSection() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 text-center">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 text-center">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -74,7 +74,7 @@ function AltitudeMap() {
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.9 }}
         className="relative w-full overflow-hidden"
-        style={{ aspectRatio: "16 / 7" }}
+        style={{ aspectRatio: "4/3" }}
       >
         {/* mountain photo */}
         <Image
@@ -228,7 +228,7 @@ function AltitudeMap() {
 export default function BrandStorySection() {
   return (
     <section id="story" className="py-28 md:py-40 bg-stone">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
 
         {/* Section label */}
         <motion.div
