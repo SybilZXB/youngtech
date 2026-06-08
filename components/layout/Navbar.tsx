@@ -51,7 +51,7 @@ export default function Navbar() {
                 maskPosition: "left center",
               }}
             />
-            <span className="text-[11px] tracking-[0.28em] text-ink-2">氧太科技</span>
+            <span className="text-sm tracking-[0.12em] text-ink-2">氧太科技</span>
           </a>
 
           {/* Desktop Nav */}

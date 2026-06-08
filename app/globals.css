@@ -24,8 +24,6 @@
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
 html {
@@ -70,9 +68,9 @@ body {
 }
 
 .display-cjk {
-  font-size: clamp(2.2rem, 7.5vw, 8rem);
+  font-size: clamp(2rem, 6vw, 6.5rem);
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 0.98;
   letter-spacing: -0.01em;
 }
 
