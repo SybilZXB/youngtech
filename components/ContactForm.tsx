@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createClient } from "@/lib/supabase/client";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -40,20 +39,36 @@ export default function ContactForm() {
     setStatus("submitting");
     setErrorMsg("");
 
-    const supabase = createClient();
-    const { error } = await supabase.from("early_bird_applications").insert({
-      email: email.trim(),
-      phone: phone.trim(),
-      tibetan_culture: culture.trim(),
-      climbing: climbing.trim(),
-    });
+    // 15s 超时保护，避免请求挂死在「提交中」
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
 
-    if (error) {
+    try {
+      const res = await fetch("/api/early-bird", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          phone: phone.trim(),
+          tibetan_culture: culture.trim(),
+          climbing: climbing.trim(),
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setStatus("error");
+        setErrorMsg(data?.error || "提交失败，请稍后重试，或邮件联系我们。");
+        return;
+      }
+      setStatus("success");
+    } catch {
+      clearTimeout(timer);
       setStatus("error");
-      setErrorMsg("提交失败，请稍后重试，或邮件联系我们。");
-      return;
+      setErrorMsg("网络超时，请检查网络后重试，或邮件联系我们。");
     }
-    setStatus("success");
   }
 
   const inputCls =
