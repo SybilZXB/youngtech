@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import ContactForm from "@/components/ContactForm";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -53,6 +54,11 @@ export default function ContactSection() {
               商务合作、渠道分销与媒体咨询，<br className="hidden md:block" />我们期待与每一位探索者对话。
             </p>
           </motion.div>
+
+          {/* 联系表单 */}
+          <div className="mt-16 md:mt-20">
+            <ContactForm />
+          </div>
         </div>
 
         {/* Details row — airy, editorial */}
