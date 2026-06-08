@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import {
   motion,
   useScroll,
@@ -9,9 +9,6 @@ import {
   useMotionValueEvent,
   MotionValue,
 } from "framer-motion";
-
-// 3D peak is client-only (WebGL) — load without SSR
-const Peak = dynamic(() => import("@/components/three/Peak"), { ssr: false });
 
 /**
  * MISSION EXPERIENCE — cinematic scroll narrative.
@@ -196,14 +193,12 @@ export default function MissionExperienceSection() {
   // breathing scale for summit scene
   const breathe = useTransform(scrollYProgress, [0.61, 0.665, 0.72], [1, 1.18, 1]);
 
-  // 3D globe: shared scroll ref + fade-in for the Scene 6/7 finale
+  // photo finale — fades in during Scene 6/7
   const progressRef = useRef(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    progressRef.current = v;
-  });
-  const globeOpacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [0, 1, 1]);
-  const globeScale = useTransform(scrollYProgress, [0.7, 1], [1.05, 0.82]);
-  const particleOpacity = useTransform(scrollYProgress, [0.7, 0.85], [1, 0.3]);
+  useMotionValueEvent(scrollYProgress, "change", (v) => { progressRef.current = v; });
+  const photoOpacity = useTransform(scrollYProgress, [0.68, 0.8, 1], [0, 1, 1]);
+  const photoScale  = useTransform(scrollYProgress, [0.68, 1],     [1.06, 1.0]);
+  const particleOpacity = useTransform(scrollYProgress, [0.68, 0.84], [1, 0.15]);
 
   return (
     <section id="mission" ref={containerRef} className="relative h-[750vh] bg-dark">
@@ -234,22 +229,24 @@ export default function MissionExperienceSection() {
           <ParticleCanvas progress={scrollYProgress} />
         </motion.div>
 
-        {/* 3D sacred peak — finale (Scene 6/7).
-            CSS fallback glow sits behind the WebGL canvas so the finale still
-            reads as an alpine summit even if a device can't run WebGL. */}
-        <motion.div style={{ opacity: globeOpacity, scale: globeScale }} className="absolute inset-0 z-[5] pointer-events-none">
-          <div
-            className="absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2 w-[60vmin] h-[60vmin] rounded-full"
-            style={{ background: "radial-gradient(circle at 48% 42%, rgba(147,166,179,0.22), rgba(10,22,34,0.5) 58%, transparent 72%)" }}
-          />
-          <Peak progressRef={progressRef} />
-        </motion.div>
-
-        {/* tonal grade — cool grey wash unifies the finale, outdoor mood */}
+        {/* Real climbing photo — Manaslu 8163m, CC BY 3.0. Fades in for Scene 6/7 finale. */}
         <motion.div
-          style={{ opacity: globeOpacity, background: "linear-gradient(180deg, rgba(120,140,155,0.22) 0%, rgba(40,55,68,0.08) 45%, rgba(8,14,20,0.5) 100%)" }}
-          className="absolute inset-0 z-[6] pointer-events-none mix-blend-soft-light"
-        />
+          style={{ opacity: photoOpacity, scale: photoScale }}
+          className="absolute inset-0 z-[5] pointer-events-none"
+        >
+          <Image
+            src="/mission/manaslu_climber.jpg"
+            alt="Climber on Manaslu 8163m"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+          {/* cinematic grade: keep it moody, not blown out */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, rgba(5,10,18,0.55) 0%, rgba(5,10,18,0.15) 45%, rgba(5,10,18,0.72) 100%)" }}
+          />
+        </motion.div>
 
         {/* vignette */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)" }} />

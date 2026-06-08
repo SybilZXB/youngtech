@@ -1,183 +1,226 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 const pillars = [
-  { idx: "01", en: "Young", zh: "年轻", desc: "年轻不是年龄，而是一种好奇、行动、不设限的状态。", accent: false },
-  { idx: "02", en: "Tech", zh: "科技", desc: "技术的价值，不在炫技，而在于让每一次体验更可依赖。", accent: false },
-  { idx: "03", en: "Outdoor", zh: "户外", desc: "山野、风、光与呼吸感，是我们最重要的设计起点。", accent: false },
+  { idx: "01", en: "Young",       zh: "年轻",   desc: "年轻不是年龄，而是一种好奇、行动、不设限的状态。", accent: false },
+  { idx: "02", en: "Tech",        zh: "科技",   desc: "技术的价值，不在炫技，而在于让每一次体验更可依赖。", accent: false },
+  { idx: "03", en: "Outdoor",     zh: "户外",   desc: "山野、风、光与呼吸感，是我们最重要的设计起点。", accent: false },
   { idx: "04", en: "Human First", zh: "以人为本", desc: "无论技术如何演进，最终都要回到真实体验与情绪感受。", accent: true },
 ];
 
-const zones = [
-  { id: "sea", alt: 0, altLabel: "0 m", label: "海平面", sub: "Sea Level", o2: "20.9%", desc: "标准大气含氧量，所有探索旅程的起点。身体处于最舒适的状态。" },
-  { id: "alpine", alt: 3000, altLabel: "3,000 m", label: "高山地带", sub: "Alpine Zone", o2: "14.3%", desc: "含氧量明显下降，早期高原反应开始出现。氧太自适应监测系统在此刻启动。" },
-  { id: "death", alt: 5000, altLabel: "5,000 m", label: "接近死亡地带", sub: "Near Death Zone", o2: "10.8%", desc: "临界区域。智能氧气系统实时计算并提供精准的补充氧气流量。" },
-  { id: "summit", alt: 8848, altLabel: "8,848 m", label: "珠峰之巅", sub: "Everest Summit", o2: "6.9%", desc: "人类耐力的极限。唯有装备氧太科技的探险者，才能在此保持完整的认知能力。" },
-];
-
-// SVG geometry — altitude → y on a 1000×500 canvas
-const VB_W = 1000, VB_H = 500, GROUND = 462, TOP = 56;
-const altToY = (alt: number) => GROUND - (alt / 8848) * (GROUND - TOP);
+// Dot positions are calibrated on the K2 base-camp full-mountain photo (4:3 portrait crop used as 16/7 banner).
+// x=left%, y=top% within the image container.
 const stations = [
-  { ...zones[0], x: 90 },
-  { ...zones[1], x: 340 },
-  { ...zones[2], x: 590 },
-  { ...zones[3], x: 880 },
+  {
+    id: "sea", altLabel: "0 m", label: "海平面", sub: "Sea Level",
+    o2: "20.9%", barPct: 100,
+    desc: "标准大气含氧量，所有探索旅程的起点。身体处于最舒适的状态，生理机能满负荷运转。",
+    // bottom-left — represents the vast plains below
+    dot: { x: 10, y: 82 },
+    // callout opens to the right
+    callout: { side: "right" },
+  },
+  {
+    id: "alpine", altLabel: "3,000 m", label: "高山地带", sub: "Alpine Zone",
+    o2: "14.3%", barPct: 68,
+    desc: "含氧量明显下降，早期高原反应开始出现。氧太自适应监测系统在此刻静默启动。",
+    dot: { x: 28, y: 65 },
+    callout: { side: "right" },
+  },
+  {
+    id: "death", altLabel: "5,000 m", label: "接近死亡地带", sub: "Near Death Zone",
+    o2: "10.8%", barPct: 52,
+    desc: "临界区域。智能氧气系统实时计算并提供精准的补充氧气流量，将每一口吸入变得可控。",
+    dot: { x: 46, y: 45 },
+    callout: { side: "right" },
+  },
+  {
+    id: "summit", altLabel: "8,848 m", label: "珠峰之巅", sub: "Everest Summit",
+    o2: "6.9%", barPct: 33,
+    desc: "人类耐力的极限。唯有装备氧太科技的探险者，才能在此保持完整的认知能力。",
+    // near the K2 summit in the photo
+    dot: { x: 54, y: 10 },
+    callout: { side: "left" },
+  },
 ];
 
-function AltitudeJourney() {
-  const [active, setActive] = useState(3); // default: summit
-  const z = stations[active];
+function AltitudeMap() {
+  const [active, setActive] = useState<number | null>(null);
+
+  const handleDot = (i: number) => setActive(active === i ? null : i);
 
   return (
     <div className="mt-28 md:mt-40">
-      <motion.h3
+      <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="section-heading text-ink mb-4"
+        transition={{ duration: 0.8 }}
+        className="mb-8"
       >
-        从海平面，<br />到世界之巅。
-      </motion.h3>
-      <p className="body-sm mb-14 max-w-md">点击山峰节点，感受不同海拔的含氧量与身体状态。</p>
+        <h3 className="section-heading text-ink">
+          从海平面，<br />到世界之巅。
+        </h3>
+        <p className="body-sm mt-4 text-ink-3">点击山峰节点，感受不同海拔的含氧量与身体状态。</p>
+      </motion.div>
 
-      <div className="grid lg:grid-cols-[1.6fr_1fr] gap-10 lg:gap-16 items-center">
-        {/* ── Illustration ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8 }}
-          className="relative"
-        >
-          <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto select-none">
-            <defs>
-              <linearGradient id="rangeBack" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#cfe3f2" />
-                <stop offset="100%" stopColor="#dfe7ec" />
-              </linearGradient>
-              <linearGradient id="rangeFront" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#8fb8d8" />
-                <stop offset="100%" stopColor="#b7cad8" />
-              </linearGradient>
-            </defs>
+      {/* Photo map */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.9 }}
+        className="relative w-full overflow-hidden"
+        style={{ aspectRatio: "16 / 7" }}
+      >
+        {/* mountain photo */}
+        <Image
+          src="/mountains/k2.jpg"
+          alt="K2 — 乔戈里峰 8611m"
+          fill
+          sizes="100vw"
+          className="object-cover object-[center_30%]"
+        />
 
-            {/* altitude gridlines */}
-            {zones.map((zn) => {
-              const y = altToY(zn.alt);
-              return (
-                <g key={zn.id}>
-                  <line x1="40" y1={y} x2={VB_W - 10} y2={y} stroke="#d8d6d0" strokeWidth="1" strokeDasharray="3 5" />
-                  <text x={VB_W - 6} y={y - 6} textAnchor="end" className="fill-ink-3" style={{ fontSize: 16, fontWeight: 600 }}>
-                    {zn.altLabel}
-                  </text>
-                </g>
-              );
-            })}
+        {/* cinematic grade */}
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(180deg, rgba(5,10,18,0.38) 0%, rgba(5,10,18,0.05) 40%, rgba(5,10,18,0.62) 100%)"
+        }} />
 
-            {/* back range */}
-            <motion.path
-              d="M0,462 L150,330 L300,248 L470,300 L650,170 L820,205 L1000,118 L1000,462 Z"
-              fill="url(#rangeBack)"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-            />
-            {/* front range — ridge ascending through the stations */}
-            <motion.path
-              d={`M0,462 L${stations[0].x},${altToY(0)} L200,300 L${stations[1].x},${altToY(3000)} L460,210 L${stations[2].x},${altToY(5000)} L720,130 L${stations[3].x},${altToY(8848)} L1000,150 L1000,462 Z`}
-              fill="url(#rangeFront)"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.1, delay: 0.15 }}
-            />
+        {/* dashed connecting line */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+          <line
+            x1={`${stations[0].dot.x}%`} y1={`${stations[0].dot.y}%`}
+            x2={`${stations[3].dot.x}%`} y2={`${stations[3].dot.y}%`}
+            stroke="rgba(155,212,245,0.35)" strokeWidth="1" strokeDasharray="5 9"
+          />
+        </svg>
 
-            {/* snow caps on the high peaks */}
-            <path d={`M${stations[3].x - 26},${altToY(8848) + 40} L${stations[3].x},${altToY(8848)} L${stations[3].x + 26},${altToY(8848) + 40} L${stations[3].x + 10},${altToY(8848) + 30} L${stations[3].x},${altToY(8848) + 40} L${stations[3].x - 10},${altToY(8848) + 30} Z`} fill="#ffffff" opacity="0.95" />
-            <path d={`M${stations[2].x - 20},${altToY(5000) + 34} L${stations[2].x},${altToY(5000)} L${stations[2].x + 20},${altToY(5000) + 34} Z`} fill="#ffffff" opacity="0.8" />
+        {/* dots */}
+        {stations.map((s, i) => {
+          const isActive = active === i;
+          return (
+            <button
+              key={s.id}
+              onClick={() => handleDot(i)}
+              className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
+              style={{ left: `${s.dot.x}%`, top: `${s.dot.y}%` }}
+              aria-label={`${s.label} ${s.altLabel}`}
+            >
+              {/* pulse ring */}
+              {isActive && (
+                <motion.span
+                  className="absolute inset-0 rounded-full border border-accent-ice"
+                  animate={{ scale: [1, 3.2], opacity: [0.8, 0] }}
+                  transition={{ duration: 1.4, repeat: Infinity }}
+                />
+              )}
 
-            {/* station markers + cartoon flags */}
-            {stations.map((s, i) => {
-              const y = altToY(s.alt);
-              const isActive = active === i;
-              return (
-                <g key={s.id} onClick={() => setActive(i)} style={{ cursor: "pointer" }}>
-                  {/* vertical connector */}
-                  <line x1={s.x} y1={y} x2={s.x} y2={GROUND} stroke={isActive ? "#3A93D8" : "#c3c1ba"} strokeWidth={isActive ? 2 : 1} strokeDasharray="2 4" />
-                  {/* hit area */}
-                  <circle cx={s.x} cy={y} r="26" fill="transparent" />
-                  {/* pulse */}
-                  {isActive && <circle cx={s.x} cy={y} r="16" fill="#3A93D8" opacity="0.15" />}
-                  {/* dot */}
-                  <circle cx={s.x} cy={y} r={isActive ? 8 : 5} fill={isActive ? "#3A93D8" : "#111110"} />
-                  <circle cx={s.x} cy={y} r={isActive ? 8 : 5} fill="none" stroke="#ffffff" strokeWidth="2" />
-                  {/* label */}
-                  <text x={s.x} y={y - 18} textAnchor="middle" style={{ fontSize: 17, fontWeight: 700 }} className={isActive ? "fill-accent" : "fill-ink"}>
-                    {s.label}
-                  </text>
-                </g>
-              );
-            })}
+              {/* dot */}
+              <span className={`block w-3 h-3 rounded-full border-2 border-white transition-all duration-200 ${
+                isActive ? "bg-accent scale-125" : "bg-white/70 group-hover:bg-accent group-hover:scale-110"
+              }`} />
 
-            {/* ground line */}
-            <line x1="0" y1={GROUND} x2={VB_W} y2={GROUND} stroke="#bdbbb4" strokeWidth="1.5" />
-          </svg>
-        </motion.div>
-
-        {/* ── Detail panel ── */}
-        <motion.div
-          key={z.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-sand border border-border p-8 md:p-10"
-        >
-          <div className="section-label mb-3">{z.sub}</div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-5xl md:text-6xl font-bold text-ink tracking-tight">{z.altLabel.replace(" m", "")}</span>
-            <span className="text-lg text-ink-2 font-medium">m</span>
-          </div>
-          <h4 className="text-2xl font-bold text-ink mb-6">{z.label}</h4>
-
-          <div className="border-t border-border pt-5 mb-5">
-            <div className="flex items-baseline justify-between">
-              <span className="section-label">大气含氧量</span>
-              <span className="text-3xl font-bold text-accent">{z.o2}</span>
-            </div>
-            <div className="mt-3 h-1.5 bg-stone overflow-hidden rounded-full">
-              <motion.div
-                key={z.id + "-bar"}
-                className="h-full bg-accent rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${(parseFloat(z.o2) / 20.9) * 100}%` }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              />
-            </div>
-          </div>
-
-          <p className="body-sm">{z.desc}</p>
-
-          {/* quick switch */}
-          <div className="flex gap-2 mt-8">
-            {stations.map((s, i) => (
-              <button
-                key={s.id}
-                onClick={() => setActive(i)}
-                className={`flex-1 text-[10px] tracking-wide py-2 border transition-colors ${
-                  active === i ? "bg-ink text-sand border-ink" : "border-border text-ink-3 hover:border-ink hover:text-ink"
-                }`}
+              {/* altitude micro-label — always visible */}
+              <span
+                className="absolute whitespace-nowrap font-mono text-white/75 pointer-events-none select-none"
+                style={{
+                  fontSize: "10px",
+                  letterSpacing: "0.12em",
+                  left: s.callout.side === "right" ? "16px" : "auto",
+                  right: s.callout.side === "left"  ? "16px" : "auto",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
               >
-                {s.altLabel.replace(" m", "")}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+                {s.altLabel}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* floating callout — near the active dot */}
+        <AnimatePresence>
+          {active !== null && (() => {
+            const s = stations[active];
+            const isLeft = s.callout.side === "left";
+            const dotX = s.dot.x;
+            const dotY = s.dot.y;
+            // position callout: right or left of dot, push up if near bottom
+            const calloutLeft = isLeft ? undefined : Math.min(dotX + 4, 60);
+            const calloutRight = isLeft ? Math.min(100 - dotX + 4, 60) : undefined;
+            const calloutTop = dotY > 65 ? undefined : dotY;
+            const calloutBottom = dotY > 65 ? (100 - dotY + 2) : undefined;
+
+            return (
+              <motion.div
+                key={s.id}
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute z-20 w-52 md:w-64 pointer-events-none"
+                style={{
+                  left:   calloutLeft   !== undefined ? `${calloutLeft}%`   : undefined,
+                  right:  calloutRight  !== undefined ? `${calloutRight}%`  : undefined,
+                  top:    calloutTop    !== undefined ? `${calloutTop}%`    : undefined,
+                  bottom: calloutBottom !== undefined ? `${calloutBottom}%` : undefined,
+                }}
+              >
+                <div className="bg-dark/85 backdrop-blur-lg p-5 md:p-6 border border-sand/10">
+                  {/* zone label */}
+                  <div className="section-label text-accent-ice mb-1">{s.sub}</div>
+
+                  {/* altitude */}
+                  <div className="flex items-baseline gap-1 mb-0.5">
+                    <span className="text-3xl md:text-4xl font-bold text-white tracking-tight leading-none">
+                      {s.altLabel.replace(" m", "")}
+                    </span>
+                    <span className="text-base text-white/60 font-medium">m</span>
+                  </div>
+                  <div className="text-sm font-semibold text-white mb-4">{s.label}</div>
+
+                  {/* O₂ bar */}
+                  <div className="flex justify-between text-[10px] tracking-widest text-white/40 uppercase mb-1.5">
+                    <span>大气含氧量</span>
+                    <span className="text-accent-ice font-semibold">{s.o2}</span>
+                  </div>
+                  <div className="h-0.5 bg-white/10 mb-4 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-accent-ice"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${s.barPct}%` }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    />
+                  </div>
+
+                  {/* description */}
+                  <p className="text-white/55 text-xs leading-relaxed">{s.desc}</p>
+                </div>
+
+                {/* small connector arrow toward the dot */}
+                <div
+                  className="absolute top-5 w-0 h-0"
+                  style={{
+                    [isLeft ? "right" : "left"]: "-5px",
+                    borderTop: "5px solid transparent",
+                    borderBottom: "5px solid transparent",
+                    [isLeft ? "borderRight" : "borderLeft"]: "5px solid rgba(15,15,13,0.85)",
+                  }}
+                />
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
+        {/* photo credit */}
+        <div className="absolute bottom-2 right-3 text-[9px] tracking-wide text-white/25 pointer-events-none select-none">
+          K2 · 乔戈里峰 8,611 m · Photo CC
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -258,8 +301,8 @@ export default function BrandStorySection() {
           </div>
         </div>
 
-        {/* Altitude journey — interactive illustration */}
-        <AltitudeJourney />
+        {/* Altitude journey — interactive mountain photo */}
+        <AltitudeMap />
       </div>
     </section>
   );
