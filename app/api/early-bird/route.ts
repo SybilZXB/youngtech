@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/lib/supabase/config";
 
 // 服务端代理写入 Supabase —— 浏览器只与本站同域通信，
 // 由服务器去连 Supabase，避免国内直连海外 supabase.co 卡住。
@@ -17,10 +18,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "内容超出长度限制。" }, { status: 400 });
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-    );
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     const { error } = await supabase.from("early_bird_applications").insert({
       email,
@@ -33,16 +31,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "提交失败，请稍后重试。" }, { status: 500 });
     }
     return Response.json({ ok: true });
-  } catch (e) {
-    // 临时诊断：返回真实错误
-    return Response.json(
-      {
-        error: "请求异常，请稍后重试。",
-        _debug: e instanceof Error ? e.message : String(e),
-        _hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        _hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-      },
-      { status: 500 }
-    );
+  } catch {
+    return Response.json({ error: "请求异常，请稍后重试。" }, { status: 500 });
   }
 }
