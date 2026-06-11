@@ -33,7 +33,16 @@ export async function POST(request: Request) {
       return Response.json({ error: "提交失败，请稍后重试。" }, { status: 500 });
     }
     return Response.json({ ok: true });
-  } catch {
-    return Response.json({ error: "请求异常，请稍后重试。" }, { status: 500 });
+  } catch (e) {
+    // 临时诊断：返回真实错误
+    return Response.json(
+      {
+        error: "请求异常，请稍后重试。",
+        _debug: e instanceof Error ? e.message : String(e),
+        _hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        _hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+      },
+      { status: 500 }
+    );
   }
 }
